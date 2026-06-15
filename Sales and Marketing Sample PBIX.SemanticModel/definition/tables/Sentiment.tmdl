@@ -1,0 +1,138 @@
+table Sentiment
+	isHidden
+	lineageTag: d0e13dd6-97f7-4ec5-946f-74d6078c29b7
+
+	measure 'Sum of Score' = SUM('Sentiment'[Score])
+		lineageTag: b22c5515-2b05-4957-b2d3-28bd95b8a926
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average of Score' = AVERAGE('Sentiment'[Score])
+		lineageTag: 93ec9d10-6cab-4d66-b797-c3fc073dca59
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DateID
+		dataType: int64
+		isHidden
+		lineageTag: 02e9f31e-1a88-44d0-8dbc-959f9f6a770f
+		summarizeBy: count
+		sourceColumn: DateID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column StateID
+		dataType: int64
+		isHidden
+		lineageTag: 8f00a41d-0f3a-415c-8998-4982ff42c7fd
+		summarizeBy: count
+		sourceColumn: StateID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ManufacturerID
+		dataType: int64
+		isHidden
+		lineageTag: fc7a9583-0911-4fe7-83a4-d3fe75c40dd2
+		summarizeBy: none
+		sourceColumn: ManufacturerID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Score
+		dataType: double
+		isHidden
+		lineageTag: 32d97883-dc83-464e-b8d4-28a87dec5ef5
+		summarizeBy: sum
+		sourceColumn: Score
+
+		annotation DataTypeAtRefresh = Double#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Manufacturer
+		dataType: string
+		isHidden
+		lineageTag: 0b33e444-59a6-4ec6-9cf2-d4d4ca6076bf
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Date
+		dataType: dateTime
+		isHidden
+		lineageTag: 5e7fab40-cc5c-48c2-bebf-669b0a3f04ac
+		dataCategory: Date
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation DataTypeAtRefresh = DateTime#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column State
+		dataType: string
+		isHidden
+		lineageTag: 15b97134-af96-4fe8-8ca9-6befa842a98c
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column zip
+		dataType: string
+		isHidden
+		lineageTag: adebb78e-2f81-4d85-a1d5-2a59da87dcf4
+		summarizeBy: none
+		sourceColumn: zip
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductID
+		dataType: int64
+		isHidden
+		lineageTag: f42a4a60-15da-4b70-ab94-522206368cfe
+		summarizeBy: count
+		sourceColumn: ProductID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Sentiment = m
+		source =
+				let
+				    Source = Sql.Database(".", "IP", [Query="SELECT s.[DateID]+6 DateID ,s.[StateID], s.[ManufacturerID], s.[Score], s.[Manufacturer], dateadd(month, 6, s.[Date]) Date, s.[State],  g.zip, m.ProductID#(lf)FROM [SalesAndMarketing].[Sentiment] s#(lf),#(lf)(#(lf) select distinct state,#(lf) (select top 1 zip from  [SalesAndMarketing].[Geo] where g.state = state) zip#(lf)  from [SalesAndMarketing].[Geo] g#(lf)) g#(lf),#(lf)(#(lf) select distinct Manufacturer,#(lf) (select top 1 ProductID from  [SalesAndMarketing].Product where g.Manufacturer = Manufacturer) ProductID#(lf)  from [SalesAndMarketing].Product g#(lf)) m#(lf)where s.State = g.State and s.Manufacturer = m.Manufacturer"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source, {{"DateID", "DateID"}, {"StateID", "StateID"}, {"ManufacturerID", "ManufacturerID"}, {"Score", "Score"}, {"Manufacturer", "Manufacturer"}, {"Date", "Date"}, {"State", "State"}, {"zip", "zip"}, {"ProductID", "ProductID"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"DateID", Int64.Type}, {"StateID", Int64.Type}, {"ManufacturerID", Int64.Type}, {"Score", type number}, {"Manufacturer", type text}, {"Date", type datetime}, {"State", type text}, {"zip", type text}, {"ProductID", Int64.Type}})
+				in
+				    #"Changed Type"
+

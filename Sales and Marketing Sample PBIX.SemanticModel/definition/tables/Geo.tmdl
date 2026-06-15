@@ -1,0 +1,93 @@
+table Geo
+	lineageTag: fd6075d6-0724-4b06-bb8c-53da2cff01b9
+
+	column Zip
+		dataType: string
+		isHidden
+		lineageTag: bde700a0-9b2c-4d76-99d9-89368d806232
+		dataCategory: PostalCode
+		summarizeBy: none
+		sourceColumn: Zip
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column City
+		dataType: string
+		lineageTag: e3c0964d-a195-476d-9bf2-fb771ce7ccaa
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column State
+		dataType: string
+		lineageTag: 2cf22dd5-d188-42fb-a6c7-28e0285a0ce5
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Region
+		dataType: string
+		lineageTag: c55620ed-ef5b-4120-939c-29294dfc3d7f
+		dataCategory: Region
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column District
+		dataType: string
+		lineageTag: 06ae79b2-a202-4600-979b-360dd473901c
+		dataCategory: District
+		summarizeBy: none
+		sourceColumn: District
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	hierarchy GeoRollup
+		lineageTag: 7485449e-6be1-4799-8e2f-261cbf0fa1e1
+
+		level State
+			lineageTag: ed42b99c-4d58-412d-b1c1-cbca27949f34
+			column: State
+
+		level City
+			lineageTag: 41172f61-b3fb-44ac-ba65-cc63d3f1d6da
+			column: City
+
+		level Zip
+			lineageTag: dbe002a9-6244-4760-abc8-bc489c5fa4fc
+			column: Zip
+
+	partition Geo = m
+		source =
+				let
+				    Source = Sql.Database(".", "IP", [Query="SELECT [SalesAndMarketing].[Geo].*   FROM [SalesAndMarketing].[Geo]"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source, {{"Zip", "Zip"}, {"City", "City"}, {"State", "State"}, {"Region", "Region"}, {"District", "District"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"Zip", type text}, {"City", type text}, {"State", type text}, {"Region", type text}, {"District", type text}})
+				in
+				    #"Changed Type"
+

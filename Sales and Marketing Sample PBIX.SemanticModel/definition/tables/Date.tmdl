@@ -1,0 +1,189 @@
+table Date
+	lineageTag: 92c9096b-7039-4ac8-9e55-b9dde014518d
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: General Date
+		lineageTag: 5a9216bf-736f-4460-ae9e-005cb6d2e4b9
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 4c582681-9ba7-432b-bfd4-adea4053f849
+			defaultHierarchy: LocalDateTable_a1cd3d03-2df1-466a-bea5-79b9463a9397.'Date Hierarchy'
+
+		annotation DataTypeAtRefresh = DateTime#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNo
+		dataType: int64
+		lineageTag: 35f0b8ce-d54c-4565-a04c-1b8fadc0b6b7
+		summarizeBy: sum
+		sourceColumn: MonthNo
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MonthName
+		dataType: string
+		lineageTag: 5c4bb8b8-88f5-4243-a327-7c9ab1138eae
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: MonthNo
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column MonthID
+		dataType: int64
+		isHidden
+		lineageTag: edf2b31f-b81e-4b75-b701-f685f94056f8
+		summarizeBy: count
+		sourceColumn: MonthID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Month
+		dataType: string
+		lineageTag: d57155b0-7c42-4048-9516-29b1496322d0
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: MonthID
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Quarter
+		dataType: string
+		lineageTag: 6b6580ce-cfc4-4b36-8114-b7d54b7ff59f
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Year
+		dataType: int64
+		lineageTag: ce9450cd-e906-4c54-939d-9f6e859b944c
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RunningMonths = ((YEAR(DATE(2014, 6, 30))-[Year])*12 + MONTH(DATE(2014, 12, 31)) - [MonthNo] +1)
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7ed6cd93-9aa8-46ba-8f12-793808fefcfd
+		summarizeBy: sum
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Running Year' = IF(CEILING([RunningMonths]/12, 1)>0, CEILING([RunningMonths]/12, 1), BLANK())
+		lineageTag: 7206c542-94b6-4eb6-9b28-63fe1a92f633
+		summarizeBy: sum
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Running Months' = IF([Running Year]=1, "Running 12 Months", IF([Running Year]=2, "Running 13-24 Months", IF([Running Year]=3, "Running 25-36 Months", Blank())))
+		lineageTag: 118ed01a-c34b-4399-98a4-326c02c2782a
+		summarizeBy: none
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column 'Rolling Period' = IF([RunningMonths]<37&&[RunningMonths]>0,  "P-"&(RIGHT("0"&([RunningMonths]-([Running Year]-1)*12-1), 2)))
+		lineageTag: 4ac6de83-742c-4eec-9022-8f49041524f7
+		summarizeBy: none
+		sortByColumn: 'Rolling Period Sort'
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column 'Rolling Period Sort' = IF([RunningMonths]>0 && [RunningMonths]<37,13- [RunningMonths] +12*(CEILING([RunningMonths]/12, 1)-1))
+		dataType: int64
+		lineageTag: dbaa7bc4-ef0c-4e1a-80d6-a9585b335e3d
+		summarizeBy: sum
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MonthIndex = CALCULATE(DISTINCTCOUNT([Month]), FILTER(ALL('Date'), [Date]<=EARLIER([Date])))
+		lineageTag: ac789fba-c301-4404-bd83-7adec90229f4
+		summarizeBy: sum
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	hierarchy YQMD
+		lineageTag: 95600e09-cef0-4558-b8e6-9a2251c0ac80
+
+		level Year
+			lineageTag: 2a42611d-d246-48af-b591-e44c5bb7b430
+			column: Year
+
+		level Quarter
+			lineageTag: 202d7406-93eb-44d8-a0c0-db12d96e4bc4
+			column: Quarter
+
+		level Month
+			lineageTag: 52b2da9f-764f-4489-9056-70bb40f37737
+			column: Month
+
+		level Date
+			lineageTag: 6a5b7ddc-9b26-42db-9b4e-b51966277bad
+			column: Date
+
+	partition Date = m
+		source =
+				let
+				    Source = Sql.Database(".", "IP", [Query="SELECT [SalesAndMarketing].[Date].*   FROM [SalesAndMarketing].[Date]"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source, {{"Date", "Date"}, {"MonthNo", "MonthNo"}, {"MonthName", "MonthName"}, {"MonthID", "MonthID"}, {"Month", "Month"}, {"Quarter", "Quarter"}, {"Year", "Year"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"Date", type datetime}, {"MonthNo", Int64.Type}, {"MonthName", type text}, {"MonthID", Int64.Type}, {"Month", type text}, {"Quarter", type text}, {"Year", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation __PBI_LegacyCustomDateTable = true
+

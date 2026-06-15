@@ -1,0 +1,47 @@
+table Manufacturer
+	lineageTag: afd382af-aba2-4e46-b38c-54fbeebac4ff
+
+	column ManufacturerID
+		dataType: int64
+		isHidden
+		lineageTag: e30a2daf-0598-4c03-bc18-cf37ceb6086c
+		summarizeBy: none
+		sourceColumn: ManufacturerID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Manufacturer
+		dataType: string
+		lineageTag: 9833630a-ab8b-441c-ac47-617effdc569e
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column MfgisVanArsdel = IF([Manufacturer]="VanArsdel", "Yes", "No")
+		lineageTag: 38e06cab-aff3-4ef0-95a3-a260deb714db
+		summarizeBy: none
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	partition Manufacturer = m
+		source =
+				let
+				    Source = Sql.Database(".", "IP", [Query="select distinct [ManufacturerID], #(lf) IIF(Manufacturer='Maximus', 'VanArsdel', Manufacturer) Manufacturer#(lf)  from [IP].[SalesAndMarketing].[Sentiment]"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source, {{"ManufacturerID", "ManufacturerID"}, {"Manufacturer", "Manufacturer"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"ManufacturerID", Int64.Type}, {"Manufacturer", type text}})
+				in
+				    #"Changed Type"
+

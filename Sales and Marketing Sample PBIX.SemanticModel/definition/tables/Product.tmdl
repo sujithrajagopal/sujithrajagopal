@@ -1,0 +1,131 @@
+table Product
+	lineageTag: 61fdce0b-14db-4375-b127-dc400a7a8d46
+
+	measure 'Count of Product' = COUNTA('Product'[Product])
+		lineageTag: c2a52cbc-0a0b-46f5-994f-2ecfc7bd7bf0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Manufacturer
+		dataType: string
+		lineageTag: 719f6832-5029-4756-9d2a-0cc49ed6d7a1
+		summarizeBy: none
+		sourceColumn: Manufacturer
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Category
+		dataType: string
+		lineageTag: 5e9425ae-d778-454f-b48c-3c7d4328e647
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Segment
+		dataType: string
+		lineageTag: 2e120372-ba0a-4b7b-bc96-0d3bd7458a21
+		summarizeBy: none
+		sourceColumn: Segment
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Product
+		dataType: string
+		lineageTag: 3cc79d89-d171-4468-9472-117e365e67fa
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column ProductID
+		dataType: int64
+		isHidden
+		lineageTag: bdaf8cef-ae31-4ac4-a505-e690aebd9704
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column isVanArsdel = IF([Manufacturer]="VanArsdel", "Yes", "No")
+		lineageTag: 5f485171-4da2-455d-8411-1d41c1932079
+		summarizeBy: none
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column IsCompeteHide
+		dataType: string
+		isHidden
+		lineageTag: e4440378-da0b-424b-9079-3c0d2864215a
+		summarizeBy: none
+		sourceColumn: IsCompeteHide
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+	column ManufacturerID
+		dataType: int64
+		isHidden
+		lineageTag: 77369b7d-a359-480d-95e9-7a19b1a73eed
+		summarizeBy: none
+		sourceColumn: ManufacturerID
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+	column IsCompete = IF([IsCompeteHide]="N", "No", "Yes")
+		lineageTag: f79f8381-947d-40d7-9f07-0bedef609cdf
+		summarizeBy: none
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	hierarchy ProductRollup
+		lineageTag: 5c3d8268-479c-435f-b8c9-6aba752d840d
+
+		level Category
+			lineageTag: c45b1459-5b1e-4210-b577-595dd91213d8
+			column: Category
+
+		level Segment
+			lineageTag: 49279d80-9058-42b0-833a-debf6cdd18f6
+			column: Segment
+
+		level Product
+			lineageTag: c02f9365-69ac-4ac1-b699-0b2b2afa26b7
+			column: Product
+
+	partition Product = m
+		source =
+				let
+				    Source = Sql.Database(".", "IP", [Query="SELECT #(lf) p.ProductID,#(lf) p.Product,#(lf) p.Category,#(lf) Segment,#(lf) m.[ManufacturerID],#(lf) IIF(p.Manufacturer='Maximus', 'VanArsdel', p.Manufacturer) Manufacturer, #(lf) p.IsCompete#(lf)FROM [SalesAndMarketing].[Product] p, #(lf) (#(lf)  select distinct [ManufacturerID], #(lf)Manufacturer#(lf)  from [IP].[SalesAndMarketing].[Sentiment]#(lf) ) m#(lf)where m.Manufacturer = p.Manufacturer"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source, {{"Manufacturer", "Manufacturer"}, {"Category", "Category"}, {"Segment", "Segment"}, {"Product", "Product"}, {"ProductID", "ProductID"}, {"IsCompete", "IsCompeteHide"}, {"ManufacturerID", "ManufacturerID"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"Manufacturer", type text}, {"Category", type text}, {"Segment", type text}, {"Product", type text}, {"ProductID", Int64.Type}, {"IsCompeteHide", type text}, {"ManufacturerID", Int64.Type}})
+				in
+				    #"Changed Type"
+

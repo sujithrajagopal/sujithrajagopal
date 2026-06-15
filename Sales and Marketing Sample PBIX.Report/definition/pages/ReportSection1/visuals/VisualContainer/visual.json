@@ -1,0 +1,31 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.5.0/schema.json",
+  "name": "VisualContainer",
+  "position": {
+    "x": 1.2631578947368423,
+    "y": 20.210526315789476,
+    "z": 0,
+    "height": 697.26315789473688,
+    "width": 1277.0526315789475
+  },
+  "visual": {
+    "visualType": "image",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "imageUrl": {
+              "expr": {
+                "ResourcePackageItem": {
+                  "PackageName": "RegisteredResources",
+                  "PackageType": 1,
+                  "ItemName": "power-bi-obvience-splash3701825477182865.png"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
