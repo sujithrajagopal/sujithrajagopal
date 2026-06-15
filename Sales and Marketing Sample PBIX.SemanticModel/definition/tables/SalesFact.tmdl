@@ -48,7 +48,7 @@ table SalesFact
 		formatString: #,0
 		lineageTag: 6f0916e4-0a90-4530-a5db-d14489efabe2
 
-	measure '% Category Compete Share' = DIVIDE([Total Compete Volume], [Total Category Volume])
+	measure 'Percentage Category Compete Share' = DIVIDE([Total Compete Volume], [Total Category Volume])
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: c1462c00-a233-4da9-bb4e-ec680ce1d3ef
 
